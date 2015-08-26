@@ -58,10 +58,13 @@ createTask = (file, first) ->
 
 			stream = fs.createReadStream(file, encoding: 'utf8')
 
-			stream.pipe(breakLineStream).pipe(wstream)
+			# stream.pipe(breakLineStream).pipe(wstream)
+
+			stream.pipe(wstream, end: false)
 
 			stream.on 'end', ->
 				console.log "stream on end"
+				wstream.end("\n")
 				resolve()
 
 		# geoJsons = []
@@ -145,7 +148,7 @@ createTask = (file, first) ->
 # globf = "river/%s.txt"
 # globString = sprintf(globf, globkey)
 
-glob "geojson/01000*.geojson", (err, files) ->
+glob "geojson/01*.geojson", (err, files) ->
 
 	first = ->
 		new Promise (resolve, reject) ->
