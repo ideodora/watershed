@@ -53,6 +53,7 @@ createTask = (file) ->
 					"fill-opacity": 0.6
 					"stroke": "#0000ff"
 					"stroke-opacity": 0.8
+					"rivercode": code
 
 				geoJsons.push geoJson
 			
