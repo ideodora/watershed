@@ -44,12 +44,13 @@ createTask = (file) ->
 			ref = null
 			ref2 = null
 			counter = 0
+			lineCount = 1
 
 			countUp = (chunk, enc, cb) ->
 
 				this.push chunk
 
-				console.log counter++
+				counter++
 
 				cb()
 
@@ -74,6 +75,8 @@ createTask = (file) ->
 					ref = geoJson
 				else
 					ref = turf.union ref, geoJson
+
+				console.log "", code, ":", counter, "/", lineCount
 
 				if counter % 3000 == 0
 					console.log "on transform counter:", counter
@@ -105,33 +108,42 @@ createTask = (file) ->
 
 				cb()
 
-			byline.createStream(fs.createReadStream(file, encoding:'utf8'))
+			
+			stream = fs.createReadStream(file)
+			.on 'data', (chunk) ->
+				for chunky in chunk
+					if chunky == 10 or chunky == 13 then lineCount++
+				return undefined
+			
+			.on 'end', ->
+				byline.createStream(fs.createReadStream(file, encoding:'utf8'))
+				# byline.createStream(stream)
 
-				.pipe(through2(countUp))
+					.pipe(through2(countUp))
 
-				.pipe(through2(objectMode: true, transform, flush))
+					.pipe(through2(objectMode: true, transform, flush))
 
-				# .pipe(through2(objectMode: true, transform2, transform2Flush))
+					# .pipe(through2(objectMode: true, transform2, transform2Flush))
 
-				.on('data', (data) ->
+					.on('data', (data) ->
 
-					console.log "byline on data:", counter
-					console.log data
-					# if ref is null
-					# 	ref = data
-					# else
-					# 	ref = turf.union ref, data
-					fs.writeFileSync "geojson2/" + code + "-large.geojson", JSON.stringify(data) + "\n", flag: 'a', ->
-				)
+						console.log "byline on data:", counter
+						console.log data
+						# if ref is null
+						# 	ref = data
+						# else
+						# 	ref = turf.union ref, data
+						fs.writeFileSync "geojson2/" + code + "-large.geojson", JSON.stringify(data) + "\n", flag: 'a', ->
+					)
 
-				.on('end', ->
-					console.log "tStream on end"
-					
-					# fs.writeFile "geojson2/" + code + ".geojson", JSON.stringify(ref2), flag: 'a', ->
-						# resolve()
+					.on('end', ->
+						console.log "tStream on end"
+						
+						# fs.writeFile "geojson2/" + code + ".geojson", JSON.stringify(ref2), flag: 'a', ->
+							# resolve()
 
-					resolve()
-				)
+						resolve()
+					)
 
 			# stream.on 'data', (line) ->
 

@@ -47,7 +47,7 @@ createTask = (file, first) ->
 			wstream.on 'finish', ->
 				resolve()
 
-glob "geojson/01*.geojson", (err, files) ->
+glob "geojson2/*.geojson", (err, files) ->
 
 	first = ->
 		new Promise (resolve, reject) ->
